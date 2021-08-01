@@ -8,7 +8,7 @@ function getdistr(μ::AbstractFloat ,σ::AbstractFloat; distr=Normal)
 end
 
 
-function getkarmeddict(k::Number, μ, σ;getdistr=getdistr, μnoise_μ=0.3, σnoise_μ=0.8, μnoise_σ=0.0, σnoise_σ=0.1)
+function getkarmeddict(k::Number, μ, σ;getdistr=getdistr, μnoise_μ=0.3, σnoise_μ=2.0, μnoise_σ=0.0, σnoise_σ=0.1)
     karmeddict = Dict()
     highest = 1
     highest_μ = -1*10e11
@@ -159,7 +159,6 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
         array_Qₜa = Qₜa_simpleaverage(pre_state_t_3, array_Qₜa, line=3)
         array_Qₜa = Qₜa_simpleaverage(pre_state_t_1, array_Qₜa)
         array_Qₜa = Qₜa_UTB(pre_state_t_2, array_Qₜa, c)
-        println("array_Qₜa prepared in round $i")
 
         Aₜ = getAₜ(array_Qₜa)
 
@@ -168,14 +167,16 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
         pre_state_t_3, state3 = qₜ(Int(Aₜ[3]), k_armed_dict, pre_state_t_3, state3)
 
     end
-    return state1, state2, state3
+    println("Done")
+    print(k_armed_dict)
+    states = (state1, state2, state3)
+    pre_state_ts = (pre_state_t_1, pre_state_t_2, pre_state_t_3)
+    return states, pre_state_ts
 
 end
 
-states = main(10000, 10, 0.0, 1.0, 2, 2)
-states[1]
-states[2]
-states[3] 
-size(states[1])[1]
-plot(x=[i for i in 1:size(states[1])[1]], y=states[1], Geom.point, Geom.line) # The plot is not really great
+states, pre_state_ts = main(10000, 10, 0.0, 1.0, 2, 2)
 
+# Write plotting function here
+plot(x=[i for i in 1:size(states[3][1:1000])[1]], y=states[3][1:1000],
+Geom.point, Geom.line) # The plot is not really great, look it yourself I will save it at file: Plot1.png... 
