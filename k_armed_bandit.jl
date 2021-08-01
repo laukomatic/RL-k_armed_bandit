@@ -1,9 +1,7 @@
-using Makie: push!
+using Gadfly
 using Distributions: maximum
 using Base: AbstractFloat, Float64, Integer, pause, Real
 using Random, Distributions
-using Makie
-import GLMakie
 
 function getdistr(μ::AbstractFloat ,σ::AbstractFloat; distr=Normal)
     return distr(μ, σ)
@@ -136,9 +134,10 @@ end
 # In it we have current values of Qₜa.
 
 function main(batch_size, k, μ, σ, c, optimistic_value; 
-    create_pre_state_t=create_pre_state_t, array_Qₜa=array_Qₜa, getAₜ=getAₜ,
+    create_pre_state_t=create_pre_state_t, getAₜ=getAₜ,
     getkarmeddict=getkarmeddict, t=t, qₜ=qₜ,
     Qₜa_simpleaverage=Qₜa_simpleaverage, Qₜa_UTB=Qₜa_UTB, Qₜa_OIV=Qₜa_OIV)
+    
     """
     This function will put it all together, to calculate the output.
     Output will be the array of shape(batch_size, `number Qₜa-s`). 
@@ -147,6 +146,7 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
     2. We will create a loop that will calculate our favoured step for each Qₜa. 
     3. Than repeat this batch_size times. Printing something every few steps.
     """
+    array_Qₜa = zeros(k, 5)
     k_armed_dict = getkarmeddict(k, μ, σ)
     println("Build k_armed_dict")
     pre_state_t_1 = create_pre_state_t(k)
@@ -158,7 +158,7 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
     state3 = []
     println("Done initialising...")
     for i in 1:3
-        sleep(0.6)
+        sleep(0.4)
         println("Preparing...")
     end
     println("STARTING...")
@@ -170,9 +170,7 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
         array_Qₜa = Qₜa_UTB(pre_state_t_2, array_Qₜa, c)
         println("array_Qₜa prepared in round $i")
 
-
         Aₜ = getAₜ(array_Qₜa)
-        println("Aₜ initialised it is $Aₜ")
 
         pre_state_t_1, state1 = qₜ(Int(Aₜ[1]), k_armed_dict, pre_state_t_1, state1)
         pre_state_t_2, state2 = qₜ(Int(Aₜ[2]), k_armed_dict, pre_state_t_2, state2)
@@ -183,50 +181,10 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
 
 end
 
-# Here I will write the entire process but only for Qₜa_simpleaverage
-
-array_Qₜa = zeros(10, 3)
-pre_state_t = create_pre_state_t(10)
-array_Qₜa = Qₜa_simpleaverage(pre_state_t, array_Qₜa)
-save_array = []
-Aₜ = getAₜ(array_Qₜa)
-pre_state_t = qₜ(Int(Aₜ[1]), k_armed_dict, pre_state_t, save_array)
-array_Qₜa
-pre_state_t
-
-println(k_armed_dict)
-
-# Here I will write the entire process but only for Qₜa_UTB
-k_armed_dict = getkarmeddict(10, 0.0, 1.0)
-array_Qₜa = zeros(10, 3)
-pre_state_t = create_pre_state_t(10)
-save_array = []
-for i in 1:1000
-    array_Qₜa = Qₜa_UTB(pre_state_t, array_Qₜa, 2)
-    Aₜ = getAₜ(array_Qₜa)
-    pre_state_t, save_array = qₜ(Int(Aₜ[2]), k_armed_dict, pre_state_t, save_array)
-end
-pre_state_t
-array_Qₜa
-save_array
-lines(1:10)
-
-# Here I will write the entire process but only for Qₜa_OIV
-
-array_Qₜa = zeros(10, 3)
-pre_state_t = create_pre_state_t(10)
-save_arrayy = []
-Qₜa_OIV(array_Qₜa, 5, 1)
-for i in 1:10000
-    array_Qₜa = Qₜa_simpleaverage(pre_state_t, array_Qₜa, line=3)
-    Aₜ = getAₜ(array_Qₜa)
-    pre_state_t, save_arrayy = qₜ(Int(Aₜ[1]), k_armed_dict, pre_state_t, save_arrayy)
-end
-pre_state_t[7, :]
-array_Qₜa[7]
-maximum(array_Qₜa)
-
-states = main(100000, 10, 0.0, 1.0, 2, 2)
+states = main(10000, 10, 0.0, 1.0, 2, 2)
 states[1]
 states[2]
 states[3] 
+size(states[1])[1]
+plot(x=[i for i in 1:size(states[1])[1]], y=states[1], Geom.point, Geom.line) # The plot is not really great
+
