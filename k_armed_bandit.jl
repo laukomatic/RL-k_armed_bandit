@@ -123,17 +123,8 @@ function Qₜa_OIV(array_Qₜa, optimistic_value, i; line=3)
     return array_Qₜa
 end
 
-# In this step, we will test the code.
 
 # building function to run it all
-
-# array_Qₜa = zeros(10, 3)
-# pre_state_t = create_pre_state_t(10)
-
-# Qₜa_OIV(array_Qₜa, 5, pre_state_t, 1)
-
-# array_Qₜa includes array(k, num_Qₜas). 
-# In it we have current values of Qₜa.
 
 function main(batch_size, k, μ, σ, c, optimistic_value; 
     create_pre_state_t=create_pre_state_t, array_Qₜa=array_Qₜa, getAₜ=getAₜ,
