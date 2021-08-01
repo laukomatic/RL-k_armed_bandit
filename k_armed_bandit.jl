@@ -8,7 +8,7 @@ function getdistr(μ::AbstractFloat ,σ::AbstractFloat; distr=Normal)
 end
 
 
-function getkarmeddict(k::Number, μ, σ;getdistr=getdistr, μnoise_μ=0.3, σnoise_μ=0.8, μnoise_σ=0.0, σnoise_σ=0.1)
+function getkarmeddict(k::Number, μ, σ;getdistr=getdistr, μnoise_μ=0.3, σnoise_μ=2.0, μnoise_σ=0.0, σnoise_σ=0.1)
     karmeddict = Dict()
     highest = 1
     highest_μ = -1*10e11
@@ -168,16 +168,26 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
         pre_state_t_3, state3 = qₜ(Int(Aₜ[3]), k_armed_dict, pre_state_t_3, state3)
 
     end
-    return state1, state2, state3
+    states = (state1, state2, state3)
+    pre_state_ts = (pre_state_t_1, pre_state_t_2, pre_state_t_3)
+    return states, pre_state_ts
 
 end
 
-states = main(10000, 10, 0.0, 1.0, 2, 2)
+states, pre_state_ts = main(10000, 10, 0.0, 1.0, 2, 2)
 states[1]
 states[2]
 states[3] 
 size(states[1])[1]
 
 # Write plotting function here
-plot(x=[i for i in 1:size(states[1])[1]], y=states[1], Geom.point, Geom.line) # The plot is not really great
+    plot(x=[i for i in 1:size(states[i][1:1000])[1]], y=states[i][1:1000],
+    Geom.point, Geom.line) # The plot is not really great
 
+states[1][1:1000]
+for j in 1:3
+    println("This is for j = $j")
+    for i in pre_state_ts[j][:, 2]
+        println(i)
+    end
+end
