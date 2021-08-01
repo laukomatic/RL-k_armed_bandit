@@ -177,5 +177,7 @@ states[1]
 states[2]
 states[3] 
 size(states[1])[1]
+
+# Write plotting function here
 plot(x=[i for i in 1:size(states[1])[1]], y=states[1], Geom.point, Geom.line) # The plot is not really great
 
