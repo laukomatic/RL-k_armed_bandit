@@ -159,7 +159,6 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
         array_Qₜa = Qₜa_simpleaverage(pre_state_t_3, array_Qₜa, line=3)
         array_Qₜa = Qₜa_simpleaverage(pre_state_t_1, array_Qₜa)
         array_Qₜa = Qₜa_UTB(pre_state_t_2, array_Qₜa, c)
-        println("array_Qₜa prepared in round $i")
 
         Aₜ = getAₜ(array_Qₜa)
 
@@ -168,6 +167,8 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
         pre_state_t_3, state3 = qₜ(Int(Aₜ[3]), k_armed_dict, pre_state_t_3, state3)
 
     end
+    println("Done")
+    print(k_armed_dict)
     states = (state1, state2, state3)
     pre_state_ts = (pre_state_t_1, pre_state_t_2, pre_state_t_3)
     return states, pre_state_ts
@@ -175,19 +176,7 @@ function main(batch_size, k, μ, σ, c, optimistic_value;
 end
 
 states, pre_state_ts = main(10000, 10, 0.0, 1.0, 2, 2)
-states[1]
-states[2]
-states[3] 
-size(states[1])[1]
 
 # Write plotting function here
-    plot(x=[i for i in 1:size(states[i][1:1000])[1]], y=states[i][1:1000],
-    Geom.point, Geom.line) # The plot is not really great
-
-states[1][1:1000]
-for j in 1:3
-    println("This is for j = $j")
-    for i in pre_state_ts[j][:, 2]
-        println(i)
-    end
-end
+plot(x=[i for i in 1:size(states[3][1:1000])[1]], y=states[3][1:1000],
+Geom.point, Geom.line) # The plot is not really great, look it yourself I will save it at file: Plot1.png... 
